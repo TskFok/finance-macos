@@ -11,19 +11,18 @@ struct AddIncomeView: View {
         VStack(spacing: AppTheme.spacingL) {
             HStack(spacing: AppTheme.spacingS) {
                 Image(systemName: "plus.circle.fill")
-                    .font(.title2)
+                    .font(AppTheme.Font.title2())
                     .foregroundStyle(AppTheme.accentGradient)
                 Text("添加收入")
-                    .font(.title2.weight(.semibold))
+                    .font(AppTheme.Font.title2(.semibold))
             }
             .padding(.bottom, 4)
 
             Form {
                 TextField("金额", text: $viewModel.amountText)
                     .textFieldStyle(.plain)
-                    .padding(8)
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
+                    .foregroundStyle(AppTheme.textPrimary)
+                    .appTechInput()
                 Picker("类型", selection: $viewModel.type) {
                     Text("请选择").tag("")
                     ForEach(incomeTypes, id: \.self) { type in
@@ -37,7 +36,7 @@ struct AddIncomeView: View {
 
             if let msg = viewModel.errorMessage {
                 Text(msg)
-                    .font(.caption)
+                    .font(AppTheme.Font.caption())
                     .foregroundStyle(AppTheme.destructive)
             }
             HStack(spacing: AppTheme.spacingM) {
@@ -63,7 +62,14 @@ struct AddIncomeView: View {
         }
         .padding(AppTheme.paddingL)
         .frame(width: 380)
-        .background(.ultraThinMaterial)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge)
+                .fill(AppTheme.surface)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge)
+                .stroke(AppTheme.border, lineWidth: 1)
+        )
         .onChange(of: viewModel.didCreate) { _, done in
             if done {
                 dismiss()

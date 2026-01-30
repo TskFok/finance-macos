@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 
 struct StatisticsView: View {
     @StateObject private var viewModel = StatisticsViewModel()
@@ -9,8 +8,8 @@ struct StatisticsView: View {
             filterBar
             if let msg = viewModel.errorMessage {
                 Text(msg)
-                    .font(.caption)
-                    .foregroundStyle(.red)
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(AppTheme.destructive)
                     .padding(.horizontal)
             }
             if viewModel.isLoading && viewModel.statistics == nil {
@@ -21,12 +20,12 @@ struct StatisticsView: View {
                     VStack(alignment: .leading, spacing: AppTheme.spacingL) {
                         summarySection(stats)
                         if !stats.categoryStats.isEmpty {
-                            pieChartSection(stats.categoryStats)
-                            barChartSection(stats.categoryStats)
+                            EChartsWebView(stats: stats)
+                                .appCard()
                         } else {
                             Text("该条件下暂无消费数据")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .font(AppTheme.Font.subheadline())
+                                .foregroundStyle(AppTheme.textSecondary)
                                 .frame(maxWidth: .infinity)
                                 .padding(AppTheme.paddingL)
                         }
@@ -35,7 +34,7 @@ struct StatisticsView: View {
                 }
             } else {
                 Text("暂无数据，可修改时间或类别后点击「查询」")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.textSecondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
@@ -61,33 +60,29 @@ struct StatisticsView: View {
                 case .month:
                     TextField("年月", text: $viewModel.yearMonth, prompt: Text("2024-01"))
                         .textFieldStyle(.plain)
-                        .padding(6)
+                        .foregroundStyle(AppTheme.textPrimary)
                         .frame(width: 88)
-                        .background(Color(nsColor: .controlBackgroundColor))
-                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
+                        .appTechInput()
                 case .year:
                     TextField("年份", text: $viewModel.year, prompt: Text("2024"))
                         .textFieldStyle(.plain)
-                        .padding(6)
+                        .foregroundStyle(AppTheme.textPrimary)
                         .frame(width: 68)
-                        .background(Color(nsColor: .controlBackgroundColor))
-                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
+                        .appTechInput()
                 case .custom:
                     TextField("开始", text: $viewModel.startTime, prompt: Text("2024-01-01"))
                         .textFieldStyle(.plain)
-                        .padding(6)
+                        .foregroundStyle(AppTheme.textPrimary)
                         .frame(width: 98)
-                        .background(Color(nsColor: .controlBackgroundColor))
-                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
+                        .appTechInput()
                     Text("至")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.secondary)
+                        .font(AppTheme.Font.subheadline(.medium))
+                        .foregroundStyle(AppTheme.textSecondary)
                     TextField("结束", text: $viewModel.endTime, prompt: Text("2024-12-31"))
                         .textFieldStyle(.plain)
-                        .padding(6)
+                        .foregroundStyle(AppTheme.textPrimary)
                         .frame(width: 98)
-                        .background(Color(nsColor: .controlBackgroundColor))
-                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
+                        .appTechInput()
                 }
 
                 Button("查询") {
@@ -99,8 +94,8 @@ struct StatisticsView: View {
 
             HStack(alignment: .top, spacing: AppTheme.spacingS) {
                 Text("类别筛选：")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
+                    .font(AppTheme.Font.caption(.medium))
+                    .foregroundStyle(AppTheme.textSecondary)
                 FlowLayout(spacing: 6) {
                     ForEach(viewModel.categories) { cat in
                         Toggle(cat.name, isOn: Binding(
@@ -114,74 +109,34 @@ struct StatisticsView: View {
         }
         .padding(AppTheme.paddingM)
         .appFilterBar()
+        .padding(.top, AppTheme.listHorizontalInset)
+        .padding(.horizontal, AppTheme.listHorizontalInset)
+        .padding(.bottom, AppTheme.spacingM)
     }
 
     private func summarySection(_ stats: DetailedStatisticsResponse) -> some View {
         VStack(alignment: .leading, spacing: AppTheme.spacingS) {
             Text("汇总")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .font(AppTheme.Font.subheadline(.semibold))
+                .foregroundStyle(AppTheme.textSecondary)
             HStack(spacing: AppTheme.spacingL) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("总金额")
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.secondary)
+                        .font(AppTheme.Font.caption(.medium))
+                        .foregroundStyle(AppTheme.textSecondary)
                     Text(String(format: "¥%.2f", stats.totalAmount))
-                        .font(.title2.weight(.semibold))
+                        .font(AppTheme.Font.title2(.semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
                 VStack(alignment: .leading, spacing: 4) {
                     Text("总笔数")
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.secondary)
+                        .font(AppTheme.Font.caption(.medium))
+                        .foregroundStyle(AppTheme.textSecondary)
                     Text("\(stats.totalCount)")
-                        .font(.title2.weight(.semibold))
+                        .font(AppTheme.Font.title2(.semibold))
                 }
                 Spacer()
             }
-        }
-        .appCard()
-    }
-
-    private func pieChartSection(_ categoryStats: [CategoryStat]) -> some View {
-        VStack(alignment: .leading, spacing: AppTheme.spacingS) {
-            Text("按类别占比（饼图）")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-            Chart(categoryStats) { stat in
-                SectorMark(
-                    angle: .value("金额", stat.total),
-                    innerRadius: .ratio(0.5),
-                    angularInset: 1.5
-                )
-                .foregroundStyle(by: .value("类别", stat.category))
-            }
-            .chartLegend(position: .bottom, spacing: 8)
-            .frame(height: 260)
-        }
-        .appCard()
-    }
-
-    private func barChartSection(_ categoryStats: [CategoryStat]) -> some View {
-        VStack(alignment: .leading, spacing: AppTheme.spacingS) {
-            Text("按类别金额（柱状图）")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-            Chart(categoryStats) { stat in
-                BarMark(
-                    x: .value("类别", stat.category),
-                    y: .value("金额", stat.total)
-                )
-                .foregroundStyle(by: .value("类别", stat.category))
-            }
-            .chartXAxis {
-                AxisMarks(values: .automatic) { _ in
-                    AxisValueLabel()
-                        .font(.caption2)
-                }
-            }
-            .chartLegend(position: .bottom, spacing: 8)
-            .frame(height: 260)
         }
         .appCard()
     }

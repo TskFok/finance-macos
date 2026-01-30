@@ -12,8 +12,8 @@ struct IncomeListView: View {
             timeFilterBar
             if let msg = viewModel.errorMessage {
                 Text(msg)
-                    .font(.caption)
-                    .foregroundStyle(.red)
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(AppTheme.destructive)
                     .padding(.horizontal)
             }
             if viewModel.isLoading && viewModel.list.isEmpty {
@@ -21,7 +21,7 @@ struct IncomeListView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if viewModel.list.isEmpty {
                 Text("暂无收入记录")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.textSecondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 listContent
@@ -50,23 +50,21 @@ struct IncomeListView: View {
     private var timeFilterBar: some View {
         HStack(spacing: AppTheme.spacingM) {
             Text("开始")
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.secondary)
+                .font(AppTheme.Font.subheadline(.medium))
+                .foregroundStyle(AppTheme.textSecondary)
             TextField("2024-01-01", text: $viewModel.startTime)
                 .textFieldStyle(.plain)
-                .padding(6)
+                .foregroundStyle(AppTheme.textPrimary)
                 .frame(width: 108)
-                .background(Color(nsColor: .controlBackgroundColor))
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
+                .appTechInput()
             Text("结束")
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.secondary)
+                .font(AppTheme.Font.subheadline(.medium))
+                .foregroundStyle(AppTheme.textSecondary)
             TextField("2024-01-31", text: $viewModel.endTime)
                 .textFieldStyle(.plain)
-                .padding(6)
+                .foregroundStyle(AppTheme.textPrimary)
                 .frame(width: 108)
-                .background(Color(nsColor: .controlBackgroundColor))
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
+                .appTechInput()
             Picker("类型", selection: $viewModel.typeFilter) {
                 Text("全部").tag("")
                 ForEach(incomeTypeOptions, id: \.self) { type in
@@ -80,9 +78,13 @@ struct IncomeListView: View {
             }
             .buttonStyle(AppTheme.PrimaryButtonStyle())
             .frame(width: 72)
+            Spacer()
         }
         .padding(AppTheme.paddingM)
         .appFilterBar()
+        .padding(.top, AppTheme.listHorizontalInset)
+        .padding(.horizontal, AppTheme.listHorizontalInset)
+        .padding(.bottom, AppTheme.spacingM)
     }
 
     private var listContent: some View {
@@ -99,6 +101,7 @@ struct IncomeListView: View {
         }
         .listStyle(.inset)
         .scrollContentBackground(.hidden)
+        .padding(.horizontal, AppTheme.listHorizontalInset)
     }
 
     private var paginationBar: some View {
@@ -109,8 +112,8 @@ struct IncomeListView: View {
             .buttonStyle(AppTheme.SecondaryButtonStyle())
             .disabled(!viewModel.canPreviousPage)
             Text("第 \(viewModel.page) / \(max(1, viewModel.totalPages)) 页，共 \(viewModel.total) 条")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(AppTheme.Font.caption())
+                .foregroundStyle(AppTheme.textSecondary)
             Button("下一页") {
                 viewModel.nextPage()
             }
@@ -130,16 +133,16 @@ struct IncomeRowView: View {
         HStack(spacing: AppTheme.spacingM) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(income.type)
-                    .font(.subheadline.weight(.semibold))
+                    .font(AppTheme.Font.subheadline(.semibold))
                 if let t = income.incomeTime {
                     Text(t)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .font(AppTheme.Font.caption2())
+                        .foregroundStyle(AppTheme.textTertiary)
                 }
             }
             Spacer()
             Text(String(format: "¥%.2f", income.amount))
-                .font(.subheadline.weight(.semibold))
+                .font(AppTheme.Font.subheadline(.semibold))
                 .foregroundStyle(AppTheme.accent)
             Button(role: .destructive) {
                 showDeleteConfirm = true
@@ -148,9 +151,7 @@ struct IncomeRowView: View {
             }
             .buttonStyle(.borderless)
         }
-        .padding(AppTheme.paddingM)
-        .background(Color(nsColor: .windowBackgroundColor))
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
+        .appCard(padding: AppTheme.paddingM)
         .confirmationDialog("删除收入", isPresented: $showDeleteConfirm) {
             Button("删除", role: .destructive, action: onDelete)
             Button("取消", role: .cancel) {}

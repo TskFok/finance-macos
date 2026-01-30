@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>消费统计</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f0f12;
+      color: #f2f2f5;
+      padding: 12px;
+    }
+    .chart-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #949499;
+      margin-bottom: 8px;
+    }
+    #pieChart, #barChart {
+      width: 100%;
+      height: 260px;
+      margin-bottom: 20px;
+    }
+    #barChart { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <div class="chart-title">按类别占比（饼图）</div>
+  <div id="pieChart"></div>
+  <div class="chart-title">按类别金额（柱状图）</div>
+  <div id="barChart"></div>
+
+  <script>
+    // 与 AppTheme 一致的深色配色
+    var chartColors = [
+      '#21d4ab', '#59d98b', '#ffc040', '#ff7349', '#d973ff', '#59a6ff', '#80e6d9'
+    ];
+
+    var pieChart = null;
+    var barChart = null;
+
+    function initCharts() {
+      if (pieChart) pieChart.dispose();
+      if (barChart) barChart.dispose();
+      pieChart = echarts.init(document.getElementById('pieChart'), null, { renderer: 'canvas' });
+      barChart = echarts.init(document.getElementById('barChart'), null, { renderer: 'canvas' });
+      window.addEventListener('resize', function() {
+        pieChart && pieChart.resize();
+        barChart && barChart.resize();
+      });
+    }
+
+    function renderCharts(data) {
+      if (!data || !data.categoryStats || data.categoryStats.length === 0) {
+        pieChart && pieChart.setOption({ title: { text: '暂无数据', left: 'center', top: 'middle', textStyle: { color: '#949499' } } }, true);
+        barChart && barChart.setOption({ title: { text: '暂无数据', left: 'center', top: 'middle', textStyle: { color: '#949499' } } }, true);
+        return;
+      }
+
+      var stats = data.categoryStats;
+      var totalSum = stats.reduce(function(s, i) { return s + i.total; }, 0);
+
+      // 饼图：环形图，悬停显示类别/金额/笔数
+      var pieData = stats.map(function(s, i) {
+        return { name: s.category, value: s.total, count: s.count, itemStyle: { color: chartColors[i % chartColors.length] } };
+      });
+      pieChart.setOption({
+        backgroundColor: 'transparent',
+        tooltip: {
+          trigger: 'item',
+          backgroundColor: 'rgba(28, 28, 29, 0.95)',
+          borderColor: 'rgba(255,255,255,0.06)',
+          textStyle: { color: '#f2f2f5' },
+          formatter: function(params) {
+            var c = params.data.count;
+            return params.name + '<br/>¥' + params.value.toFixed(2) + '<br/>' + c + ' 笔';
+          }
+        },
+        legend: { bottom: 8, textStyle: { color: '#949499' }, itemGap: 8 },
+        series: [{
+          type: 'pie',
+          radius: ['45%', '70%'],
+          center: ['50%', '48%'],
+          avoidLabelOverlap: true,
+          itemStyle: { borderColor: '#0f0f12', borderWidth: 2 },
+          label: { show: true, color: '#f2f2f5', formatter: '{b}\n{d}%' },
+          emphasis: { label: { show: true }, itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(33, 212, 171, 0.4)' } },
+          data: pieData
+        }]
+      }, true);
+
+      // 柱状图 + 折线图：类别 vs 金额（柱）+ 笔数（线）
+      var barData = stats.map(function(s, i) {
+        return { value: s.total, itemStyle: { color: chartColors[i % chartColors.length] } };
+      });
+      var lineData = stats.map(function(s) { return s.count; });
+      var categories = stats.map(function(s) { return s.category; });
+      barChart.setOption({
+        backgroundColor: 'transparent',
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: 'rgba(28, 28, 29, 0.95)',
+          borderColor: 'rgba(255,255,255,0.06)',
+          textStyle: { color: '#f2f2f5' },
+          axisPointer: { type: 'shadow' },
+          formatter: function(params) {
+            if (!params || !params.length) return '';
+            var idx = params[0].dataIndex;
+            var s = stats[idx];
+            return s.category + '<br/>金额 ¥' + s.total.toFixed(2) + '<br/>笔数 ' + s.count + ' 笔';
+          }
+        },
+        grid: { left: 48, right: 52, top: 16, bottom: 48, containLabel: false },
+        xAxis: {
+          type: 'category',
+          data: categories,
+          axisLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
+          axisLabel: { color: '#949499', fontSize: 12 }
+        },
+        yAxis: [
+          {
+            type: 'value',
+            name: '金额',
+            position: 'left',
+            axisLine: { show: false },
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
+            axisLabel: { color: '#949499' },
+            nameTextStyle: { color: '#949499', fontSize: 11 }
+          },
+          {
+            type: 'value',
+            name: '笔数',
+            position: 'right',
+            axisLine: { lineStyle: { color: 'rgba(33, 212, 171, 0.6)' } },
+            splitLine: { show: false },
+            axisLabel: { color: '#21d4ab' },
+            nameTextStyle: { color: '#21d4ab', fontSize: 11 }
+          }
+        ],
+        legend: {
+          show: true,
+          bottom: 8,
+          data: ['金额', '笔数'],
+          textStyle: { color: '#949499' },
+          itemGap: 16
+        },
+        series: [
+          { type: 'bar', name: '金额', data: barData, barWidth: '60%', yAxisIndex: 0 },
+          { type: 'line', name: '笔数', data: lineData, yAxisIndex: 1, symbol: 'circle', symbolSize: 8, lineStyle: { color: '#21d4ab', width: 2 }, itemStyle: { color: '#21d4ab', borderColor: '#0f0f12', borderWidth: 1 }, smooth: true }
+        ]
+      }, true);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      initCharts();
+      if (window.__statsData__) renderCharts(window.__statsData__);
+    });
+  </script>
+</body>
+</html>

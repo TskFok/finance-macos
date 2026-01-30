@@ -11,19 +11,18 @@ struct AddExpenseView: View {
         VStack(spacing: AppTheme.spacingL) {
             HStack(spacing: AppTheme.spacingS) {
                 Image(systemName: "minus.circle.fill")
-                    .font(.title2)
+                    .font(AppTheme.Font.title2())
                     .foregroundStyle(AppTheme.accentGradient)
                 Text("添加支出")
-                    .font(.title2.weight(.semibold))
+                    .font(AppTheme.Font.title2(.semibold))
             }
             .padding(.bottom, 4)
 
             Form {
                 TextField("金额", text: $viewModel.amountText)
                     .textFieldStyle(.plain)
-                    .padding(8)
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
+                    .foregroundStyle(AppTheme.textPrimary)
+                    .appTechInput()
                 Picker("类别", selection: $viewModel.category) {
                     Text("请选择").tag("")
                     ForEach(categories) { cat in
@@ -34,16 +33,15 @@ struct AddExpenseView: View {
                 DatePicker("时间", selection: $viewModel.expenseTime, displayedComponents: [.date, .hourAndMinute])
                 TextField("备注（选填）", text: $viewModel.descriptionText, axis: .vertical)
                     .textFieldStyle(.plain)
-                    .padding(8)
+                    .foregroundStyle(AppTheme.textPrimary)
                     .lineLimit(2...4)
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
+                    .appTechInput()
             }
             .formStyle(.grouped)
 
             if let msg = viewModel.errorMessage {
                 Text(msg)
-                    .font(.caption)
+                    .font(AppTheme.Font.caption())
                     .foregroundStyle(AppTheme.destructive)
             }
             HStack(spacing: AppTheme.spacingM) {
@@ -69,7 +67,14 @@ struct AddExpenseView: View {
         }
         .padding(AppTheme.paddingL)
         .frame(width: 380)
-        .background(.ultraThinMaterial)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge)
+                .fill(AppTheme.surface)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge)
+                .stroke(AppTheme.border, lineWidth: 1)
+        )
         .onChange(of: viewModel.didCreate) { _, done in
             if done {
                 dismiss()

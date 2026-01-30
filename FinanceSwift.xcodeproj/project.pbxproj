@@ -39,7 +39,6 @@
 		A100005A /* DetailedStatisticsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000057 /* DetailedStatisticsResponse.swift */; };
 		A100005B /* StatisticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000058 /* StatisticsViewModel.swift */; };
 		A100005C /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000059 /* StatisticsView.swift */; };
-		A100005E /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A100005D /* Charts.framework */; };
 		A1000065 /* AIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100005F /* AIModel.swift */; };
 		A1000066 /* AIChatRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000060 /* AIChatRequest.swift */; };
 		A1000067 /* AIChatHistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000061 /* AIChatHistoryItem.swift */; };
@@ -54,9 +53,13 @@
 		A1000076 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000075 /* AppTheme.swift */; };
 		A1000078 /* API-Secrets.example.plist in Resources */ = {isa = PBXBuildFile; fileRef = A1000077 /* API-Secrets.example.plist */; };
 		A100007A /* API-Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = A1000079 /* API-Secrets.plist */; };
+		A100007B /* StatisticsCharts.html in Resources */ = {isa = PBXBuildFile; fileRef = A100007C /* StatisticsCharts.html */; };
+		A100007D /* EChartsWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100007E /* EChartsWebView.swift */; };
+		A100007F /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1000080 /* WebKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7F66B0452F2C9A7400D5ED77 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A1000000 /* FinanceSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FinanceSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000011 /* FinanceSwiftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinanceSwiftApp.swift; sourceTree = "<group>"; };
 		A1000012 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -90,7 +93,6 @@
 		A1000057 /* DetailedStatisticsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedStatisticsResponse.swift; sourceTree = "<group>"; };
 		A1000058 /* StatisticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewModel.swift; sourceTree = "<group>"; };
 		A1000059 /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; sourceTree = "<group>"; };
-		A100005D /* Charts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Charts.framework; path = System/Library/Frameworks/Charts.framework; sourceTree = SDKROOT; };
 		A100005F /* AIModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIModel.swift; sourceTree = "<group>"; };
 		A1000060 /* AIChatRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatRequest.swift; sourceTree = "<group>"; };
 		A1000061 /* AIChatHistoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatHistoryItem.swift; sourceTree = "<group>"; };
@@ -105,6 +107,9 @@
 		A1000075 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		A1000077 /* API-Secrets.example.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "API-Secrets.example.plist"; sourceTree = "<group>"; };
 		A1000079 /* API-Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "API-Secrets.plist"; sourceTree = "<group>"; };
+		A100007C /* StatisticsCharts.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = StatisticsCharts.html; sourceTree = "<group>"; };
+		A100007E /* EChartsWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EChartsWebView.swift; sourceTree = "<group>"; };
+		A1000080 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,18 +117,28 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A100005E /* Charts.framework in Frameworks */,
+				A100007F /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7F66B0422F2C982D00D5ED77 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				A1000080 /* WebKit.framework */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		A1000021 = {
 			isa = PBXGroup;
 			children = (
+				7F66B0452F2C9A7400D5ED77 /* Assets.xcassets */,
 				A1000022 /* FinanceSwift */,
 				A1000023 /* Products */,
+				7F66B0422F2C982D00D5ED77 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -137,6 +152,7 @@
 				A1000026 /* Services */,
 				A1000027 /* Models */,
 				A1000028 /* Config */,
+				A1000081 /* Resources */,
 				A100001C /* Assets.xcassets */,
 			);
 			path = FinanceSwift;
@@ -159,6 +175,7 @@
 				A1000044 /* IncomeListView.swift */,
 				A1000056 /* AddIncomeView.swift */,
 				A1000059 /* StatisticsView.swift */,
+				A100007E /* EChartsWebView.swift */,
 				A1000064 /* AIChatView.swift */,
 				A100006E /* AIAnalysisView.swift */,
 			);
@@ -228,6 +245,14 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
+		A1000081 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A100007C /* StatisticsCharts.html */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -290,6 +315,7 @@
 				A100000C /* Assets.xcassets in Resources */,
 				A1000078 /* API-Secrets.example.plist in Resources */,
 				A100007A /* API-Secrets.plist in Resources */,
+				A100007B /* StatisticsCharts.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -331,6 +357,7 @@
 				A100005A /* DetailedStatisticsResponse.swift in Sources */,
 				A100005B /* StatisticsViewModel.swift in Sources */,
 				A100005C /* StatisticsView.swift in Sources */,
+				A100007D /* EChartsWebView.swift in Sources */,
 				A1000065 /* AIModel.swift in Sources */,
 				A1000066 /* AIChatRequest.swift in Sources */,
 				A1000067 /* AIChatHistoryItem.swift in Sources */,
@@ -360,7 +387,6 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;

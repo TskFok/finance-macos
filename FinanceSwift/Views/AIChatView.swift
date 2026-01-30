@@ -8,14 +8,12 @@ struct AIChatView: View {
             modelBar
             if let msg = viewModel.errorMessage {
                 Text(msg)
-                    .font(.caption)
-                    .foregroundStyle(.red)
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(AppTheme.destructive)
                     .padding(.horizontal)
             }
             Divider()
-            if viewModel.isStreaming || !viewModel.currentReply.isEmpty {
-                currentReplySection
-            }
+            currentReplySection
             inputBar
             Divider()
             historySection
@@ -58,13 +56,16 @@ struct AIChatView: View {
         }
         .padding(AppTheme.paddingM)
         .appFilterBar()
+        .padding(.top, AppTheme.listHorizontalInset)
+        .padding(.horizontal, AppTheme.listHorizontalInset)
+        .padding(.bottom, AppTheme.spacingM)
     }
 
     private var currentReplySection: some View {
         VStack(alignment: .leading, spacing: AppTheme.spacingS) {
             Text("AI 回复")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .font(AppTheme.Font.subheadline(.semibold))
+                .foregroundStyle(AppTheme.textSecondary)
             ScrollViewReader { proxy in
                 ScrollView {
                     Text(viewModel.currentReply.isEmpty ? "…" : viewModel.currentReply)
@@ -82,6 +83,7 @@ struct AIChatView: View {
             .frame(minHeight: 80, maxHeight: 220)
         }
         .appCard()
+        .padding(.top, AppTheme.listHorizontalInset)
         .padding(.horizontal, AppTheme.paddingM)
     }
 
@@ -89,10 +91,9 @@ struct AIChatView: View {
         HStack(alignment: .bottom, spacing: AppTheme.spacingM) {
             TextField("输入消息…", text: $viewModel.inputMessage, axis: .vertical)
                 .textFieldStyle(.plain)
-                .padding(8)
+                .foregroundStyle(AppTheme.textPrimary)
                 .lineLimit(2...6)
-                .background(Color(nsColor: .controlBackgroundColor))
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
+                .appTechInput()
             Button("发送") {
                 Task { await viewModel.sendMessage() }
             }
@@ -109,58 +110,59 @@ struct AIChatView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("聊天历史")
-                    .font(.headline.weight(.semibold))
+                    .font(AppTheme.Font.headline(.semibold))
                 Spacer()
                 Text("共 \(viewModel.historyTotal) 条")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(AppTheme.textSecondary)
             }
             .padding(.horizontal, AppTheme.paddingM)
             .padding(.vertical, AppTheme.paddingS)
 
-            if viewModel.isLoadingHistory && viewModel.history.isEmpty {
-                ProgressView("加载中…")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-            } else if viewModel.history.isEmpty {
-                Text("暂无历史，选择模型后发送消息或点击「加载历史」")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-            } else {
-                List {
-                    ForEach(viewModel.history) { item in
-                        AIChatHistoryRowView(item: item) {
-                            Task { await viewModel.deleteHistory(id: item.id) }
+            Group {
+                if viewModel.isLoadingHistory && viewModel.history.isEmpty {
+                    ProgressView("加载中…")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if viewModel.history.isEmpty {
+                    Text("暂无历史，选择模型后发送消息或点击「加载历史」")
+                        .font(AppTheme.Font.caption())
+                        .foregroundStyle(AppTheme.textSecondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    List {
+                        ForEach(viewModel.history) { item in
+                            AIChatHistoryRowView(item: item) {
+                                Task { await viewModel.deleteHistory(id: item.id) }
+                            }
                         }
                     }
+                    .listStyle(.inset)
                 }
-                .listStyle(.inset)
-
-                HStack(spacing: AppTheme.spacingM) {
-                    Button("上一页") {
-                        if viewModel.historyPage > 1 {
-                            viewModel.historyPage -= 1
-                            Task { await viewModel.loadHistory() }
-                        }
-                    }
-                    .buttonStyle(AppTheme.SecondaryButtonStyle())
-                    .disabled(viewModel.historyPage <= 1)
-                    Text("第 \(viewModel.historyPage) / \(max(1, viewModel.totalPages)) 页")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Button("下一页") {
-                        if viewModel.historyPage < viewModel.totalPages {
-                            viewModel.historyPage += 1
-                            Task { await viewModel.loadHistory() }
-                        }
-                    }
-                    .buttonStyle(AppTheme.SecondaryButtonStyle())
-                    .disabled(viewModel.historyPage >= viewModel.totalPages)
-                }
-                .padding(AppTheme.paddingM)
             }
+            .frame(height: 200)
+
+            HStack(spacing: AppTheme.spacingM) {
+                Button("上一页") {
+                    if viewModel.historyPage > 1 {
+                        viewModel.historyPage -= 1
+                        Task { await viewModel.loadHistory() }
+                    }
+                }
+                .buttonStyle(AppTheme.SecondaryButtonStyle())
+                .disabled(viewModel.historyPage <= 1)
+                Text("第 \(viewModel.historyPage) / \(max(1, viewModel.totalPages)) 页")
+                        .font(AppTheme.Font.caption())
+                        .foregroundStyle(AppTheme.textSecondary)
+                Button("下一页") {
+                    if viewModel.historyPage < viewModel.totalPages {
+                        viewModel.historyPage += 1
+                        Task { await viewModel.loadHistory() }
+                    }
+                }
+                .buttonStyle(AppTheme.SecondaryButtonStyle())
+                .disabled(viewModel.historyPage >= viewModel.totalPages)
+            }
+            .padding(AppTheme.paddingM)
         }
         .frame(minHeight: 120)
     }
@@ -175,19 +177,19 @@ struct AIChatHistoryRowView: View {
         VStack(alignment: .leading, spacing: 6) {
             if let user = item.userText, !user.isEmpty {
                 Text(user)
-                    .font(.subheadline)
+                    .font(AppTheme.Font.subheadline())
                     .lineLimit(2)
             }
             if let reply = item.aiText, !reply.isEmpty {
                 Text(reply)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(AppTheme.textSecondary)
                     .lineLimit(2)
             }
             if let created = item.createdAt {
                 Text(created)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .font(AppTheme.Font.caption2())
+                    .foregroundStyle(AppTheme.textTertiary)
             }
         }
         .padding(.vertical, 4)

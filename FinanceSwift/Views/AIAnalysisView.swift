@@ -8,14 +8,12 @@ struct AIAnalysisView: View {
             modelAndTimeBar
             if let msg = viewModel.errorMessage {
                 Text(msg)
-                    .font(.caption)
-                    .foregroundStyle(.red)
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(AppTheme.destructive)
                     .padding(.horizontal)
             }
             Divider()
-            if viewModel.isStreaming || !viewModel.currentResult.isEmpty {
-                resultSection
-            }
+            resultSection
             analysisButton
             Divider()
             historySection
@@ -31,62 +29,60 @@ struct AIAnalysisView: View {
     }
 
     private var modelAndTimeBar: some View {
-        VStack(alignment: .leading, spacing: AppTheme.spacingM) {
-            HStack(spacing: AppTheme.spacingM) {
-                Picker("AI 模型", selection: Binding(
-                    get: { viewModel.selectedModelId ?? 0 },
-                    set: { viewModel.selectedModelId = $0 == 0 ? nil : $0 }
-                )) {
-                    Text("请选择模型").tag(0)
-                    ForEach(viewModel.models) { model in
-                        Text(model.name).tag(model.id)
-                    }
+        HStack(spacing: AppTheme.spacingM) {
+            Picker("AI 模型", selection: Binding(
+                get: { viewModel.selectedModelId ?? 0 },
+                set: { viewModel.selectedModelId = $0 == 0 ? nil : $0 }
+            )) {
+                Text("请选择模型").tag(0)
+                ForEach(viewModel.models) { model in
+                    Text(model.name).tag(model.id)
                 }
-                .pickerStyle(.menu)
-                .frame(minWidth: 140)
-                .disabled(viewModel.isLoadingModels)
+            }
+            .pickerStyle(.menu)
+            .frame(minWidth: 140)
+            .disabled(viewModel.isLoadingModels)
 
-                Text("时间范围")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.secondary)
-                TextField("开始", text: $viewModel.startTime, prompt: Text("2024-01-01"))
-                    .textFieldStyle(.plain)
-                    .padding(6)
-                    .frame(width: 98)
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
-                Text("至")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.secondary)
-                TextField("结束", text: $viewModel.endTime, prompt: Text("2024-12-31"))
-                    .textFieldStyle(.plain)
-                    .padding(6)
-                    .frame(width: 98)
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
+            Text("时间范围")
+                .font(AppTheme.Font.subheadline(.medium))
+                .foregroundStyle(AppTheme.textSecondary)
+            TextField("开始", text: $viewModel.startTime, prompt: Text("2024-01-01"))
+                .textFieldStyle(.plain)
+                .foregroundStyle(AppTheme.textPrimary)
+                .frame(width: 98)
+                .appTechInput()
+            Text("至")
+                .font(AppTheme.Font.subheadline(.medium))
+                .foregroundStyle(AppTheme.textSecondary)
+            TextField("结束", text: $viewModel.endTime, prompt: Text("2024-12-31"))
+                .textFieldStyle(.plain)
+                .foregroundStyle(AppTheme.textPrimary)
+                .frame(width: 98)
+                .appTechInput()
+
+            if viewModel.isLoadingModels {
+                ProgressView()
+                    .scaleEffect(0.8)
             }
-            HStack {
-                if viewModel.isLoadingModels {
-                    ProgressView()
-                        .scaleEffect(0.8)
-                }
-                Spacer()
-                Button("加载历史") {
-                    Task { await viewModel.loadHistory() }
-                }
-                .buttonStyle(AppTheme.SecondaryButtonStyle())
-                .disabled(viewModel.selectedModelId == nil || viewModel.isLoadingHistory)
+            Button("加载历史") {
+                Task { await viewModel.loadHistory() }
             }
+            .buttonStyle(AppTheme.SecondaryButtonStyle())
+            .disabled(viewModel.selectedModelId == nil || viewModel.isLoadingHistory)
+            Spacer()
         }
         .padding(AppTheme.paddingM)
         .appFilterBar()
+        .padding(.top, AppTheme.listHorizontalInset)
+        .padding(.horizontal, AppTheme.listHorizontalInset)
+        .padding(.bottom, AppTheme.spacingM)
     }
 
     private var resultSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.spacingS) {
             Text("分析结果")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .font(AppTheme.Font.subheadline(.semibold))
+                .foregroundStyle(AppTheme.textSecondary)
             ScrollViewReader { proxy in
                 ScrollView {
                     Text(viewModel.currentResult.isEmpty ? "…" : viewModel.currentResult)
@@ -104,6 +100,7 @@ struct AIAnalysisView: View {
             .frame(minHeight: 80, maxHeight: 240)
         }
         .appCard()
+        .padding(.top, AppTheme.listHorizontalInset)
         .padding(.horizontal, AppTheme.paddingM)
     }
 
@@ -129,58 +126,59 @@ struct AIAnalysisView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("分析历史")
-                    .font(.headline.weight(.semibold))
+                    .font(AppTheme.Font.headline(.semibold))
                 Spacer()
                 Text("共 \(viewModel.historyTotal) 条")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(AppTheme.textSecondary)
             }
             .padding(.horizontal, AppTheme.paddingM)
             .padding(.vertical, AppTheme.paddingS)
 
-            if viewModel.isLoadingHistory && viewModel.history.isEmpty {
-                ProgressView("加载中…")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-            } else if viewModel.history.isEmpty {
-                Text("暂无历史，选择模型与时间后点击「开始分析」或「加载历史」")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-            } else {
-                List {
-                    ForEach(viewModel.history) { item in
-                        AIAnalysisHistoryRowView(item: item) {
-                            Task { await viewModel.deleteHistory(id: item.id) }
+            Group {
+                if viewModel.isLoadingHistory && viewModel.history.isEmpty {
+                    ProgressView("加载中…")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if viewModel.history.isEmpty {
+                    Text("暂无历史，选择模型与时间后点击「开始分析」或「加载历史」")
+                        .font(AppTheme.Font.caption())
+                        .foregroundStyle(AppTheme.textSecondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    List {
+                        ForEach(viewModel.history) { item in
+                            AIAnalysisHistoryRowView(item: item) {
+                                Task { await viewModel.deleteHistory(id: item.id) }
+                            }
                         }
                     }
+                    .listStyle(.inset)
                 }
-                .listStyle(.inset)
-
-                HStack(spacing: AppTheme.spacingM) {
-                    Button("上一页") {
-                        if viewModel.historyPage > 1 {
-                            viewModel.historyPage -= 1
-                            Task { await viewModel.loadHistory() }
-                        }
-                    }
-                    .buttonStyle(AppTheme.SecondaryButtonStyle())
-                    .disabled(viewModel.historyPage <= 1)
-                    Text("第 \(viewModel.historyPage) / \(max(1, viewModel.totalPages)) 页")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Button("下一页") {
-                        if viewModel.historyPage < viewModel.totalPages {
-                            viewModel.historyPage += 1
-                            Task { await viewModel.loadHistory() }
-                        }
-                    }
-                    .buttonStyle(AppTheme.SecondaryButtonStyle())
-                    .disabled(viewModel.historyPage >= viewModel.totalPages)
-                }
-                .padding(AppTheme.paddingM)
             }
+            .frame(height: 200)
+
+            HStack(spacing: AppTheme.spacingM) {
+                Button("上一页") {
+                    if viewModel.historyPage > 1 {
+                        viewModel.historyPage -= 1
+                        Task { await viewModel.loadHistory() }
+                    }
+                }
+                .buttonStyle(AppTheme.SecondaryButtonStyle())
+                .disabled(viewModel.historyPage <= 1)
+                Text("第 \(viewModel.historyPage) / \(max(1, viewModel.totalPages)) 页")
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(AppTheme.textSecondary)
+                Button("下一页") {
+                    if viewModel.historyPage < viewModel.totalPages {
+                        viewModel.historyPage += 1
+                        Task { await viewModel.loadHistory() }
+                    }
+                }
+                .buttonStyle(AppTheme.SecondaryButtonStyle())
+                .disabled(viewModel.historyPage >= viewModel.totalPages)
+            }
+            .padding(AppTheme.paddingM)
         }
         .frame(minHeight: 120)
     }
@@ -195,18 +193,18 @@ struct AIAnalysisHistoryRowView: View {
         VStack(alignment: .leading, spacing: 6) {
             if let start = item.startDate, let end = item.endDate {
                 Text("\(start) 至 \(end)")
-                    .font(.subheadline)
+                    .font(AppTheme.Font.subheadline())
             }
             if let result = item.result, !result.isEmpty {
                 Text(result)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(AppTheme.textSecondary)
                     .lineLimit(3)
             }
             if let created = item.createdAt {
                 Text(created)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .font(AppTheme.Font.caption2())
+                    .foregroundStyle(AppTheme.textTertiary)
             }
         }
         .padding(.vertical, 4)
