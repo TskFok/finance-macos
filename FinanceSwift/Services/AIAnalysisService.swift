@@ -74,6 +74,9 @@ final class AIAnalysisService: ObservableObject {
                     let (bytes, response) = try await URLSession.shared.bytes(for: request)
                     guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
                         let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+                        if code == 401 {
+                            DispatchQueue.main.async { NotificationCenter.default.post(name: .apiUnauthorized, object: nil) }
+                        }
                         continuation.finish(throwing: APIError.httpStatus(code, "请求失败"))
                         return
                     }

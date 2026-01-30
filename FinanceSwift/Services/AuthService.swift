@@ -11,6 +11,7 @@ final class AuthService: ObservableObject {
     private let client = APIClient()
     private let tokenKey = "finance_app_token"
     private let userKey = "finance_app_user"
+    private var unauthorizedObserver: (any NSObjectProtocol)?
 
     private init() {
         token = UserDefaults.standard.string(forKey: tokenKey)
@@ -19,6 +20,13 @@ final class AuthService: ObservableObject {
             currentUser = user
         } else {
             currentUser = nil
+        }
+        unauthorizedObserver = NotificationCenter.default.addObserver(
+            forName: .apiUnauthorized,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.logout()
         }
     }
 

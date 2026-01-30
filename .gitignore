@@ -10,3 +10,6 @@ Packages/
 FinanceSwift/Config/API-Secrets.plist
 **/API-Secrets.plist
 .idea
+*.xcuserstate
+xcuserdata/
+project.xcworkspace

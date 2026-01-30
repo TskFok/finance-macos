@@ -1,5 +1,10 @@
 import Foundation
 
+/// 接口返回 401 时发送，AuthService 监听后执行登出并退回登录页
+extension Notification.Name {
+    static let apiUnauthorized = Notification.Name("APIUnauthorized")
+}
+
 /// 封装 HTTP 请求，对应 doc 中 POST /api/v1/auth/login 等
 final class APIClient: Sendable {
     private let baseURL: URL
@@ -56,6 +61,10 @@ final class APIClient: Sendable {
             throw APIError.invalidResponse
         }
 
+        if http.statusCode == 401 {
+            DispatchQueue.main.async { NotificationCenter.default.post(name: .apiUnauthorized, object: nil) }
+        }
+
         let decoded: APIResponse<T>
         do {
             decoded = try decoder.decode(APIResponse<T>.self, from: data)
@@ -93,6 +102,10 @@ final class APIClient: Sendable {
             throw APIError.invalidResponse
         }
 
+        if http.statusCode == 401 {
+            DispatchQueue.main.async { NotificationCenter.default.post(name: .apiUnauthorized, object: nil) }
+        }
+
         let decoded: APIResponse<T>
         do {
             decoded = try decoder.decode(APIResponse<T>.self, from: data)
@@ -124,6 +137,10 @@ final class APIClient: Sendable {
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
+        }
+
+        if http.statusCode == 401 {
+            DispatchQueue.main.async { NotificationCenter.default.post(name: .apiUnauthorized, object: nil) }
         }
 
         let decoded: APIResponse<EmptyData>
