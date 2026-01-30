@@ -1,0 +1,12 @@
+.history
+.DS_Store
+DerivedData/
+.build/
+Packages/
+*.xcuserdata/
+*.log
+.env
+# 本地 API 配置（勿提交生产地址）
+FinanceSwift/Config/API-Secrets.plist
+**/API-Secrets.plist
+.idea
