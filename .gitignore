@@ -13,3 +13,4 @@ FinanceSwift/Config/API-Secrets.plist
 *.xcuserstate
 xcuserdata/
 project.xcworkspace
+.cursor
