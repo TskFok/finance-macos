@@ -43,4 +43,51 @@ enum DateHelpers {
     static var currentYear: String {
         String(Calendar.current.component(.year, from: Date()))
     }
+
+    /// 将 yyyy-MM-dd 字符串解析为 Date
+    static func parseDate(_ string: String) -> Date? {
+        dateFormatter.date(from: string)
+    }
+
+    // MARK: - 预设时间范围（用于现代化时间筛选）
+
+    /// 今天
+    static var todayRange: (start: String, end: String) {
+        let d = Date()
+        let s = formatDate(d)
+        return (s, s)
+    }
+
+    /// 近 7 天（含今天）
+    static var last7DaysRange: (start: String, end: String) {
+        let cal = Calendar.current
+        let end = Date()
+        guard let start = cal.date(byAdding: .day, value: -6, to: end) else { return (formatDate(end), formatDate(end)) }
+        return (formatDate(start), formatDate(end))
+    }
+
+    /// 近 30 天（含今天）
+    static var last30DaysRange: (start: String, end: String) {
+        let cal = Calendar.current
+        let end = Date()
+        guard let start = cal.date(byAdding: .day, value: -29, to: end) else { return (formatDate(end), formatDate(end)) }
+        return (formatDate(start), formatDate(end))
+    }
+
+    /// 本月
+    static var thisMonthRange: (start: String, end: String) {
+        (defaultStartTime, defaultEndTime)
+    }
+
+    /// 上月
+    static var lastMonthRange: (start: String, end: String) {
+        let cal = Calendar.current
+        guard let prevMonth = cal.date(byAdding: .month, value: -1, to: startOfCurrentMonth),
+              let start = cal.date(from: cal.dateComponents([.year, .month], from: prevMonth)),
+              let next = cal.date(byAdding: .month, value: 1, to: start),
+              let end = cal.date(byAdding: .day, value: -1, to: next) else {
+            return (defaultStartTime, defaultEndTime)
+        }
+        return (formatDate(start), formatDate(end))
+    }
 }

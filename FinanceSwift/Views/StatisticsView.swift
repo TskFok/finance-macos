@@ -48,48 +48,13 @@ struct StatisticsView: View {
     private var filterBar: some View {
         VStack(alignment: .leading, spacing: AppTheme.spacingM) {
             HStack(spacing: AppTheme.spacingM) {
-                Picker("时间范围", selection: $viewModel.rangeType) {
-                    Text("按月").tag(StatisticsRangeType.month)
-                    Text("按年").tag(StatisticsRangeType.year)
-                    Text("自定义").tag(StatisticsRangeType.custom)
-                }
-                .pickerStyle(.segmented)
-                .frame(width: 220)
-
-                switch viewModel.rangeType {
-                case .month:
-                    TextField("年月", text: $viewModel.yearMonth, prompt: Text("2024-01"))
-                        .textFieldStyle(.plain)
-                        .foregroundStyle(AppTheme.textPrimary)
-                        .frame(width: 88)
-                        .appTechInput()
-                case .year:
-                    TextField("年份", text: $viewModel.year, prompt: Text("2024"))
-                        .textFieldStyle(.plain)
-                        .foregroundStyle(AppTheme.textPrimary)
-                        .frame(width: 68)
-                        .appTechInput()
-                case .custom:
-                    TextField("开始", text: $viewModel.startTime, prompt: Text("2024-01-01"))
-                        .textFieldStyle(.plain)
-                        .foregroundStyle(AppTheme.textPrimary)
-                        .frame(width: 98)
-                        .appTechInput()
-                    Text("至")
-                        .font(AppTheme.Font.subheadline(.medium))
-                        .foregroundStyle(AppTheme.textSecondary)
-                    TextField("结束", text: $viewModel.endTime, prompt: Text("2024-12-31"))
-                        .textFieldStyle(.plain)
-                        .foregroundStyle(AppTheme.textPrimary)
-                        .frame(width: 98)
-                        .appTechInput()
-                }
-
-                Button("查询") {
-                    Task { await viewModel.loadStatistics() }
-                }
-                .buttonStyle(AppTheme.PrimaryButtonStyle())
-                .frame(width: 72)
+                TimeRangeFilterView(
+                    startTime: $viewModel.startTime,
+                    endTime: $viewModel.endTime,
+                    onApply: { Task { await viewModel.loadStatistics() } },
+                    showQueryButton: true
+                )
+                Spacer()
             }
 
             HStack(alignment: .top, spacing: AppTheme.spacingS) {

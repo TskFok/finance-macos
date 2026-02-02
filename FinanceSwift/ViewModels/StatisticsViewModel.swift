@@ -1,20 +1,10 @@
 import Foundation
 
-/// 时间范围类型，对应接口 range_type
-enum StatisticsRangeType: String, CaseIterable {
-    case month = "month"
-    case year = "year"
-    case custom = "custom"
-}
-
 @MainActor
 final class StatisticsViewModel: ObservableObject {
     @Published var categories: [ExpenseCategory] = []
     /// 选中的类别名称（空表示全部）
     @Published var selectedCategoryNames: Set<String> = []
-    @Published var rangeType: StatisticsRangeType = .month
-    @Published var yearMonth: String = DateHelpers.currentYearMonth
-    @Published var year: String = DateHelpers.currentYear
     @Published var startTime: String = DateHelpers.defaultStartTime
     @Published var endTime: String = DateHelpers.defaultEndTime
 
@@ -44,11 +34,9 @@ final class StatisticsViewModel: ObservableObject {
         defer { isLoading = false }
         do {
             let res = try await expenseService.fetchDetailedStatistics(
-                rangeType: rangeType.rawValue,
-                yearMonth: rangeType == .month ? yearMonth : nil,
-                year: rangeType == .year ? year : nil,
-                startTime: rangeType == .custom ? startTime : nil,
-                endTime: rangeType == .custom ? endTime : nil,
+                rangeType: "custom",
+                startTime: startTime,
+                endTime: endTime,
                 categories: categoriesQuery
             )
             statistics = res

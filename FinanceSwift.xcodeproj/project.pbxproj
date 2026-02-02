@@ -55,6 +55,7 @@
 		A100007A /* API-Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = A1000079 /* API-Secrets.plist */; };
 		A100007B /* StatisticsCharts.html in Resources */ = {isa = PBXBuildFile; fileRef = A100007C /* StatisticsCharts.html */; };
 		A100007D /* EChartsWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100007E /* EChartsWebView.swift */; };
+		A1000083 /* TimeRangeFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000082 /* TimeRangeFilterView.swift */; };
 		A100007F /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1000080 /* WebKit.framework */; };
 /* End PBXBuildFile section */
 
@@ -109,6 +110,7 @@
 		A1000079 /* API-Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "API-Secrets.plist"; sourceTree = "<group>"; };
 		A100007C /* StatisticsCharts.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = StatisticsCharts.html; sourceTree = "<group>"; };
 		A100007E /* EChartsWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EChartsWebView.swift; sourceTree = "<group>"; };
+		A1000082 /* TimeRangeFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeRangeFilterView.swift; sourceTree = "<group>"; };
 		A1000080 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -171,6 +173,7 @@
 			children = (
 				A1000013 /* LoginView.swift */,
 				A100003D /* ExpenseListView.swift */,
+				A1000082 /* TimeRangeFilterView.swift */,
 				A100003E /* AddExpenseView.swift */,
 				A1000044 /* IncomeListView.swift */,
 				A1000056 /* AddIncomeView.swift */,
@@ -370,6 +373,7 @@
 				A1000072 /* AIAnalysisView.swift in Sources */,
 				A1000074 /* AIAnalysisHistoryItem.swift in Sources */,
 				A1000076 /* AppTheme.swift in Sources */,
+				A1000083 /* TimeRangeFilterView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

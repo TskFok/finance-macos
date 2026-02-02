@@ -48,37 +48,24 @@ struct IncomeListView: View {
     }
 
     private var timeFilterBar: some View {
-        HStack(spacing: AppTheme.spacingM) {
-            Text("开始")
-                .font(AppTheme.Font.subheadline(.medium))
-                .foregroundStyle(AppTheme.textSecondary)
-            TextField("2024-01-01", text: $viewModel.startTime)
-                .textFieldStyle(.plain)
-                .foregroundStyle(AppTheme.textPrimary)
-                .frame(width: 108)
-                .appTechInput()
-            Text("结束")
-                .font(AppTheme.Font.subheadline(.medium))
-                .foregroundStyle(AppTheme.textSecondary)
-            TextField("2024-01-31", text: $viewModel.endTime)
-                .textFieldStyle(.plain)
-                .foregroundStyle(AppTheme.textPrimary)
-                .frame(width: 108)
-                .appTechInput()
-            Picker("类型", selection: $viewModel.typeFilter) {
-                Text("全部").tag("")
-                ForEach(incomeTypeOptions, id: \.self) { type in
-                    Text(type).tag(type)
+        VStack(alignment: .leading, spacing: AppTheme.spacingM) {
+            HStack(spacing: AppTheme.spacingM) {
+                TimeRangeFilterView(
+                    startTime: $viewModel.startTime,
+                    endTime: $viewModel.endTime,
+                    onApply: { Task { await viewModel.applyTimeFilterAndReload() } },
+                    showQueryButton: true
+                )
+                Picker("类型", selection: $viewModel.typeFilter) {
+                    Text("全部").tag("")
+                    ForEach(incomeTypeOptions, id: \.self) { type in
+                        Text(type).tag(type)
+                    }
                 }
+                .pickerStyle(.menu)
+                .frame(width: 100)
+                Spacer()
             }
-            .pickerStyle(.menu)
-            .frame(width: 100)
-            Button("查询") {
-                Task { await viewModel.applyTimeFilterAndReload() }
-            }
-            .buttonStyle(AppTheme.PrimaryButtonStyle())
-            .frame(width: 72)
-            Spacer()
         }
         .padding(AppTheme.paddingM)
         .appFilterBar()

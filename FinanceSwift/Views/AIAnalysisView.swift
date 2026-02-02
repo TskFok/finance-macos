@@ -43,22 +43,12 @@ struct AIAnalysisView: View {
             .frame(minWidth: 140)
             .disabled(viewModel.isLoadingModels)
 
-            Text("时间范围")
-                .font(AppTheme.Font.subheadline(.medium))
-                .foregroundStyle(AppTheme.textSecondary)
-            TextField("开始", text: $viewModel.startTime, prompt: Text("2024-01-01"))
-                .textFieldStyle(.plain)
-                .foregroundStyle(AppTheme.textPrimary)
-                .frame(width: 98)
-                .appTechInput()
-            Text("至")
-                .font(AppTheme.Font.subheadline(.medium))
-                .foregroundStyle(AppTheme.textSecondary)
-            TextField("结束", text: $viewModel.endTime, prompt: Text("2024-12-31"))
-                .textFieldStyle(.plain)
-                .foregroundStyle(AppTheme.textPrimary)
-                .frame(width: 98)
-                .appTechInput()
+            TimeRangeFilterView(
+                startTime: $viewModel.startTime,
+                endTime: $viewModel.endTime,
+                onApply: { Task { await viewModel.loadHistory() } },
+                showQueryButton: false
+            )
 
             if viewModel.isLoadingModels {
                 ProgressView()
