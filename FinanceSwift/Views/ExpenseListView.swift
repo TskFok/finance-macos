@@ -124,7 +124,7 @@ struct ExpenseRowView: View {
                         .font(AppTheme.Font.caption())
                         .foregroundStyle(AppTheme.textSecondary)
                 }
-                if let t = expense.expenseTime {
+                if let t = DateHelpers.formatISO8601Time(expense.expenseTime) {
                     Text(t)
                         .font(AppTheme.Font.caption2())
                         .foregroundStyle(AppTheme.textTertiary)

@@ -121,7 +121,7 @@ struct IncomeRowView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(income.type)
                     .font(AppTheme.Font.subheadline(.semibold))
-                if let t = income.incomeTime {
+                if let t = DateHelpers.formatISO8601Time(income.incomeTime) {
                     Text(t)
                         .font(AppTheme.Font.caption2())
                         .foregroundStyle(AppTheme.textTertiary)

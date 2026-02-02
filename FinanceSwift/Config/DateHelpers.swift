@@ -49,6 +49,29 @@ enum DateHelpers {
         dateFormatter.date(from: string)
     }
 
+    /// 将接口返回的 ISO8601 时间（如 2026-02-02T11:24:12+08:00）格式化为展示用字符串，支出/收入列表共用
+    static func formatISO8601Time(_ iso8601: String?) -> String? {
+        guard let s = iso8601, !s.isEmpty else { return nil }
+        let parser = ISO8601DateFormatter()
+        parser.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = parser.date(from: s) {
+            let f = DateFormatter()
+            f.dateFormat = "yyyy-MM-dd HH:mm"
+            f.locale = Locale(identifier: "en_US_POSIX")
+            f.timeZone = TimeZone.current
+            return f.string(from: date)
+        }
+        parser.formatOptions = [.withInternetDateTime]
+        if let date = parser.date(from: s) {
+            let f = DateFormatter()
+            f.dateFormat = "yyyy-MM-dd HH:mm"
+            f.locale = Locale(identifier: "en_US_POSIX")
+            f.timeZone = TimeZone.current
+            return f.string(from: date)
+        }
+        return s
+    }
+
     // MARK: - 预设时间范围（用于现代化时间筛选）
 
     /// 今天
