@@ -2,12 +2,22 @@
 
 基于 `doc.json` 接口文档的 Swift macOS 应用，支持登录、支出/收入管理、消费统计、AI 聊天与数据分析。
 
+### 主要功能
+
+- **登录/登出**：Token 持久化，未登录显示登录页，已登录进入侧栏主界面。
+- **支出/收入**：列表展示、添加、删除；支出支持分类与分类筛选。
+- **消费统计**：时间范围筛选（今日/近 7 天/近 30 天/本月/上月/自定义），按分类汇总；图表为 ECharts 饼图与柱状图（`Resources/StatisticsCharts.html` + `EChartsWebView`）。
+- **AI 聊天**：与后端 AI 对话，历史记录。
+- **AI 数据分析**：基于消费数据的分析请求与历史。
+
+应用默认使用**深色**界面（`preferredColorScheme(.dark)`）。
+
 ## 技术栈
 
 - **平台**: macOS 14+
 - **语言**: Swift 5
 - **UI**: SwiftUI
-- **图表**: Swift Charts
+- **图表**: ECharts（WebView 加载 `Resources/StatisticsCharts.html`，由 Swift 注入数据）
 - **接口**: 与后端 REST API 通信（见 `doc.json`）
 
 ---
@@ -30,7 +40,7 @@ finance-swift/
     │   ├── APIConfig.swift           # API 路径与 baseURL 读取逻辑
     │   ├── API-Secrets.example.plist # 示例配置（BaseURL 默认 localhost）
     │   ├── AppTheme.swift            # 统一设计系统（颜色、按钮、卡片等）
-    │   └── DateHelpers.swift        # 日期格式化等
+    │   └── DateHelpers.swift         # 日期格式化、时间范围预设等
     │
     ├── Models/
     │   ├── User.swift, LoginRequest.swift, LoginResponse.swift, APIResponse.swift
@@ -38,8 +48,10 @@ finance-swift/
     │   ├── Income.swift, CreateIncomeRequest.swift
     │   ├── PageResponse.swift, DetailedStatisticsResponse.swift
     │   ├── AIModel.swift, AIChatRequest.swift, AIChatHistoryItem.swift
-    │   ├── AnalysisRequest.swift, AIAnalysisHistoryItem.swift
-    │   └── ...
+    │   └── AnalysisRequest.swift, AIAnalysisHistoryItem.swift
+    │
+    ├── Resources/
+    │   └── StatisticsCharts.html    # ECharts 饼图/柱状图模板，供 EChartsWebView 加载
     │
     ├── Services/
     │   ├── APIClient.swift    # HTTP 封装、Token 注入
@@ -53,18 +65,18 @@ finance-swift/
     │   ├── LoginViewModel.swift, ExpenseListViewModel.swift, AddExpenseViewModel.swift
     │   ├── IncomeListViewModel.swift, AddIncomeViewModel.swift
     │   ├── StatisticsViewModel.swift
-    │   ├── AIChatViewModel.swift, AIAnalysisViewModel.swift
-    │   └── ...
+    │   └── AIChatViewModel.swift, AIAnalysisViewModel.swift
     │
     ├── Views/
     │   ├── LoginView.swift
     │   ├── ExpenseListView.swift, AddExpenseView.swift
     │   ├── IncomeListView.swift, AddIncomeView.swift
-    │   ├── StatisticsView.swift
+    │   ├── StatisticsView.swift, TimeRangeFilterView.swift  # 统计与时间筛选
+    │   ├── EChartsWebView.swift      # 统计图表（ECharts 饼图/柱状图）
     │   ├── AIChatView.swift, AIAnalysisView.swift
     │   └── ...
     │
-    └── Assets.xcassets        # 图标与配色
+    └── Assets.xcassets               # 图标与配色
 ```
 
 ---
@@ -81,7 +93,7 @@ finance-swift/
 4. 确保后端已启动（默认 `http://localhost:8080`），登录后逐项验证：
    - 支出列表、添加/删除支出
    - 收入列表、添加/删除收入
-   - 统计（时间筛选、饼图/柱状图）
+   - 统计（时间筛选、ECharts 饼图/柱状图）
    - AI 聊天、AI 数据分析
 
 ### 2. 指定 API 环境测试
@@ -136,7 +148,7 @@ xcodebuild -exportArchive -archivePath build/FinanceSwift.xcarchive \
   -exportPath build/export -exportOptionsPlist ExportOptions.plist
 ```
 
-**ExportOptions.plist** 示例（导出为可拷贝的 .app，不签名）：
+**ExportOptions.plist** 示例（开发用导出，不签名或使用 development）：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -144,7 +156,7 @@ xcodebuild -exportArchive -archivePath build/FinanceSwift.xcarchive \
 <plist version="1.0">
 <dict>
   <key>method</key>
-  <string>copy</string>
+  <string>development</string>
   <key>destination</key>
   <string>export</string>
 </dict>
@@ -160,9 +172,11 @@ xcodebuild -exportArchive -archivePath build/FinanceSwift.xcarchive \
 baseURL **不写死在代码中**，按以下优先级读取：
 
 1. **环境变量** `API_BASE_URL`（如 `export API_BASE_URL=https://your-api.com`）
-2. **API-Secrets.plist**（不提交）：复制 `FinanceSwift/Config/API-Secrets.example.plist` 为 `API-Secrets.plist`，修改其中的 `BaseURL`。该文件已加入工程的 **Copy Bundle Resources**，打包/归档时会一并打进 .app，运行时优先使用。
+2. **API-Secrets.plist**（不提交）：复制 `FinanceSwift/Config/API-Secrets.example.plist` 为 `API-Secrets.plist`，修改其中的 `BaseURL`。该文件已加入工程的 **Copy Bundle Resources**，打包/归档时会一并打进 .app。
 3. **API-Secrets.example.plist**（已提交）：默认 `BaseURL = http://localhost:8080`
 4. 若以上都未配置，则使用 `http://localhost:8080`
+
+上述 1～4 即运行时读取 baseURL 的优先级（环境变量最高）。
 
 生产环境请使用 1 或 2，切勿将生产地址写入仓库。
 
